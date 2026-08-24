@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火焰蓝·危化品事故案例库</title>
+    <style>
+        /* ===== 全局重置 & 消防主题变量 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            /* 消防主色：火焰蓝 + 消防红 */
+            --fire-blue: #0b2b5c;        /* 深邃火焰蓝 */
+            --fire-blue-light: #1a4a8a;
+            --fire-red: #c92a2a;          /* 消防红 */
+            --fire-red-light: #e74c3c;
+            --fire-orange: #e67e22;
+            --bg-light: #f0f4fa;
+            --card-bg: #ffffff;
+            --text-dark: #0b1a2e;
+            --text-muted: #3d5166;
+            --border-light: #d0ddee;
+            --shadow-sm: 0 6px 20px rgba(11, 43, 92, 0.10);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: 0.25s ease;
+            --font: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
+        }
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: var(--font);
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--fire-blue-light);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fire-blue);
+        }
+
+        /* ===== 头部：火焰蓝 + 消防红点缀 ===== */
+        .app-header {
+            background: var(--fire-blue);
+            color: #fff;
+            padding: 0 28px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(11, 43, 92, 0.35);
+            border-bottom: 4px solid var(--fire-red);
+        }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+        .app-header .logo .icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 6px rgba(255, 80, 80, 0.4));
+        }
+        .app-header .logo .brand {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .app-header .logo .brand .main {
+            font-size: 1.2rem;
+        }
+        .app-header .logo .brand .sub {
+            font-weight: 400;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-right .stats {
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(4px);
+        }
+        .header-right .stats strong {
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        /* ===== 消防员 SVG 头像（嵌入） ===== */
+        .firefighter-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--fire-red);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 3px var(--fire-blue), 0 4px 12px rgba(0,0,0,0.3);
+            transition: var(--transition);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .firefighter-avatar svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+        .firefighter-avatar:hover {
+            transform: scale(1.08);
+            border-color: #ffd700;
+        }
+
+        /* ===== 搜索栏 ===== */
+        .search-wrap {
+            position: relative;
+            width: 260px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 10px 18px 10px 44px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+        }
+        .search-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.65);
+        }
+        .search-wrap input:focus {
+            background: rgba(255, 255, 255, 0.30);
+            border-color: var(--fire-red-light);
+            box-shadow: 0 0 0 4px rgba(201, 42, 42, 0.25);
+        }
+        .search-wrap .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        /* ===== 主体布局 ===== */
+        .app-main {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        /* ===== 左侧面板 ===== */
+        .sidebar {
+            width: 440px;
+            min-width: 340px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .sidebar .filter-bar {
+            padding: 16px 18px 12px;
+            border-bottom: 2px solid var(--border-light);
+            flex-shrink: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #f8faff;
+        }
+        .sidebar .filter-bar .tag {
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid var(--border-light);
+            background: transparent;
+            color: var(--text-muted);
+            transition: var(--transition);
+            user-select: none;
+            white-space: nowrap;
+        }
+        .sidebar .filter-bar .tag:hover {
+            background: #eef4fc;
+            border-color: var(--fire-blue-light);
+            color: var(--fire-blue);
+        }
+        .sidebar .filter-bar .tag.active {
+            background: var(--fire-blue);
+            color: #fff;
+            border-color: var(--fire-blue);
+            box-shadow: 0 2px 8px rgba(11, 43, 92, 0.25);
+        }
+        .sidebar .filter-bar .tag .count {
+            opacity: 0.6;
+            margin-left: 4px;
+            font-weight: 400;
+        }
+        .sidebar .filter-bar .tag.active .count {
+            opacity: 0.85;
+        }
+
+        .sidebar .list-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px 20px;
+        }
+        .sidebar .list-wrap .empty-msg {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .sidebar .list-wrap .empty-msg .big-icon {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ===== 列表项：消防红点缀 ===== */
+        .case-item {
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            margin-bottom: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .case-item:hover {
+            background: #f2f7ff;
+            border-left-color: var(--fire-orange);
+            transform: translateX(4px);
+        }
+        .case-item.active {
+            background: #e7efff;
+            border-left-color: var(--fire-red);
+            box-shadow: 0 2px 10px rgba(201, 42, 42, 0.08);
+        }
+        .case-item .item-title {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .case-item .item-title .badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0 12px;
+            border-radius: 40px;
+            background: var(--border-light);
+            color: var(--text-muted);
+            flex-shrink: 0;
+            line-height: 1.8;
+            letter-spacing: 0.4px;
+        }
+        .case-item .item-title .badge.special {
+            background: var(--fire-red);
+            color: #fff;
+        }
+        .case-item .item-title .badge.major {
+            background: var(--fire-orange);
+            color: #fff;
+        }
+        .case-item .item-title .badge.general {
+            background: var(--fire-blue-light);
+            color: #fff;
+        }
+        .case-item .item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+            font-size: 0.77rem;
+            color: var(--text-muted);
+        }
+        .case-item .item-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .case-item .item-meta .dot {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--fire-red);
+            flex-shrink: 0;
+            opacity: 0.5;
+        }
+        .case-item .item-preview {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+        .case-item .item-preview .highlight {
+            background: #fce4b8;
+            color: var(--text-dark);
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* ===== 右侧详情：消防红点缀 ===== */
+        .detail-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 40px 44px;
+            background: var(--bg-light);
+            position: relative;
+        }
+        .detail-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--fire-red), var(--fire-orange), var(--fire-blue));
+            opacity: 0.6;
+        }
+        .detail-panel .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+        .detail-panel .placeholder .big-icon {
+            font-size: 4.5rem;
+            opacity: 0.25;
+            margin-bottom: 20px;
+        }
+        .detail-panel .placeholder h3 {
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--fire-blue);
+        }
+        .detail-panel .placeholder p {
+            max-width: 400px;
+            opacity: 0.6;
+            margin-top: 10px;
+        }
+
+        /* ===== 消防员装饰卡片（右侧顶部） ===== */
+        .firefighter-hero {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: var(--card-bg);
+            padding: 12px 24px 12px 20px;
+            border-radius: var(--radius);
+            border-left: 6px solid var(--fire-red);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 28px;
+            max-width: 820px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .firefighter-hero .avatar-box {
+            flex-shrink: 0;
+            width: 64px;
+            height: 64px;
+            background: var(--fire-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--fire-red);
+            box-shadow: 0 0 0 3px #fff;
+        }
+        .firefighter-hero .avatar-box svg {
+            width: 40px;
+            height: 40px;
+            fill: #fff;
+        }
+        .firefighter-hero .hero-text {
+            font-weight: 600;
+            color: var(--fire-blue);
+            font-size: 0.95rem;
+        }
+        .firefighter-hero .hero-text small {
+            display: block;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+        .firefighter-hero .hero-tag {
+            margin-left: auto;
+            background: var(--fire-red);
+            color: #fff;
+            padding: 4px 18px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ===== 详情内容 ===== */
+        .detail-content {
+            max-width: 820px;
+            margin: 0 auto;
+            animation: fadeUp 0.3s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail-content .detail-category {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 18px;
+            border-radius: 40px;
+            background: var(--border-light);
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .detail-content .detail-category.special {
+            background: var(--fire-red);
+            color: #fff;
+        }
+        .detail-content .detail-category.major {
+            background: var(--fire-orange);
+            color: #fff;
+        }
+        .detail-content .detail-category.general {
+            background: var(--fire-blue-light);
+            color: #fff;
+        }
+
+        .detail-content h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            color: var(--fire-blue);
+            border-bottom: 3px solid var(--fire-red);
+            padding-bottom: 12px;
+        }
+
+        .detail-content .detail-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 28px;
+            background: var(--card-bg);
+            padding: 18px 24px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .detail-content .detail-meta-grid .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-content .detail-meta-grid .meta-item .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--fire-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-content .detail-meta-grid .meta-item .value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-top: 2px;
+        }
+
+        .detail-content .detail-section {
+            margin-top: 24px;
+        }
+        .detail-content .detail-section h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--fire-blue);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-content .detail-section h3 .icon {
+            font-size: 1.2rem;
+        }
+        .detail-content .detail-section p,
+        .detail-content .detail-section li {
+            font-size: 0.93rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+        .detail-content .detail-section ul {
+            padding-left: 24px;
+            margin: 6px 0 4px;
+        }
+        .detail-content .detail-section ul li {
+            margin-bottom: 5px;
+        }
+        .detail-content .detail-section .block {
+            background: var(--card-bg);
+            padding: 18px 24px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            margin-top: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+        .detail-content .detail-section .block p:last-child {
+            margin-bottom: 0;
+        }
+        .detail-content .detail-empty {
+            color: var(--text-muted);
+            font-style: italic;
+            background: var(--card-bg);
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--border-light);
+        }
+
+        /* ===== 移动端适配 ===== */
+        @media (max-width: 860px) {
+            .app-header {
+                padding: 0 16px;
+                height: 70px;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .app-header .logo .brand .main { font-size: 1rem; }
+            .app-header .logo .brand .sub { display: none; }
+            .header-right .stats { font-size: 0.7rem; padding: 4px 12px; }
+            .search-wrap { width: 160px; }
+            .search-wrap input { font-size: 0.8rem; padding: 8px 12px 8px 36px; }
+            .search-wrap .search-icon { left: 12px; font-size: 0.85rem; }
+            .firefighter-avatar { width: 38px; height: 38px; }
+            .firefighter-avatar svg { width: 24px; height: 24px; }
+
+            .app-main { flex-direction: column; height: auto; min-height: calc(100vh - 70px); }
+            .sidebar { width: 100%; min-width: unset; height: 44vh; border-right: none; border-bottom: 2px solid var(--border-light); }
+            .sidebar .filter-bar { padding: 10px 12px 8px; gap: 5px; }
+            .sidebar .filter-bar .tag { font-size: 0.7rem; padding: 3px 12px; }
+            .sidebar .list-wrap { padding: 6px 10px 12px; }
+            .case-item { padding: 10px 12px; }
+            .case-item .item-title { font-size: 0.85rem; }
+            .case-item .item-meta { font-size: 0.7rem; gap: 4px 10px; }
+            .case-item .item-preview { font-size: 0.75rem; }
+
+            .detail-panel { padding: 18px 16px 28px; min-height: 56vh; }
+            .firefighter-hero { padding: 10px 16px; flex-wrap: wrap; gap: 10px; }
+            .firefighter-hero .avatar-box { width: 48px; height: 48px; }
+            .firefighter-hero .avatar-box svg { width: 30px; height: 30px; }
+            .firefighter-hero .hero-tag { font-size: 0.6rem; padding: 2px 12px; }
+            .detail-content h1 { font-size: 1.2rem; }
+            .detail-content .detail-meta-grid { grid-template-columns: 1fr; gap: 6px; padding: 14px 18px; }
+            .detail-content .detail-meta-grid .meta-item .value { font-size: 0.88rem; }
+            .detail-content .detail-section h3 { font-size: 0.95rem; }
+            .detail-content .detail-section p,
+            .detail-content .detail-section li { font-size: 0.87rem; }
+            .detail-content .detail-section .block { padding: 14px 16px; }
+        }
+        @media (max-width: 480px) {
+            .app-header .logo .brand .main { font-size: 0.85rem; }
+            .header-right .stats { display: none; }
+            .search-wrap { width: 130px; }
+            .firefighter-avatar { width: 32px; height: 32px; }
+            .firefighter-avatar svg { width: 20px; height: 20px; }
+            .sidebar { height: 38vh; }
+            .detail-panel { padding: 12px 12px 20px; min-height: 62vh; }
+            .detail-content h1 { font-size: 1.0rem; }
+            .case-item .item-title .badge { font-size: 0.5rem; padding: 0 8px; }
+        }
+
+        /* ===== 工具类 ===== */
+        .text-muted { color: var(--text-muted); }
+        .mt-1 { margin-top: 6px; }
+        .mb-1 { margin-bottom: 6px; }
+        .fw-600 { font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 头部：消防主题 ===== -->
+    <header class="app-header">
+        <div class="logo">
+            <span class="icon">🚒</span>
+            <div class="brand">
+                <span class="main">火焰蓝 · 案例库</span>
+                <span class="sub">危化品事故 · 2010–2025</span>
+                
+            </div>
+            <div><small style="color: #c92a2a; font-weight: 600;"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;每一次出警都值得被铭记，每一例事故都应成为警钟！</small></div>
+
+        </div>
+        <div class="header-right">
+            <span class="stats">📋 共 <strong id="totalCount">0</strong> 个案例</span>
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索事故关键词..." autocomplete="off">
+            </div>
+            <!-- 消防员头像（嵌入SVG） -->
+            <div class="firefighter-avatar" title="消防卫士 · 致敬逆行者">
+    <img src="firefighter.jpg" alt="消防员" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== 主体 ===== -->
+    <div class="app-main">
+
+        <!-- 左侧列表 -->
+        <aside class="sidebar">
+            <div class="filter-bar" id="filterBar"></div>
+            <div class="list-wrap" id="caseList"></div>
+        </aside>
+
+        <!-- 右侧详情 -->
+        <main class="detail-panel" id="detailPanel">
+            <!-- 消防员英雄卡片（插入到详情区域顶部） -->
+            <!-- <div class="firefighter-hero" id="heroCard">
+                <div class="avatar-box">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 1.38.56 2.63 1.46 3.54L12 20l5.54-7.46A5.5 5.5 0 0 0 19 9c0-3.87-3.13-7-7-7zm0 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                </div>
+                <div class="hero-text">
+                    🧯 致敬消防英雄 · 以案为鉴
+                    <small>每一次出警都值得被铭记，每一例事故都应成为警钟</small>
+                </div>
+                <span class="hero-tag">⚡ 安全第一</span>
+            </div> -->
+
+            <div class="placeholder" id="placeholder">
+                <div class="big-icon">📘</div>
+                <h3>选择案例查看详情</h3>
+                <p>从左侧列表点击任意事故案例，即可查看完整的事故经过、直接原因与主要教训。</p>
+            </div>
+            <div id="detailContent" style="display:none;"></div>
+        </main>
+    </div>
+
+    <script>
+        // ================================================================
+        //  数 据 （完整补全版，包含全部35个案例）
+        // ================================================================
+
+        const CATEGORY_MAP = {
+            '特别重大事故': 'special',
+            '重大事故': 'major',
+            '较大事故': 'general',
+        };
+        const CATEGORY_LABEL = {
+            'special': '特别重大',
+            'major': '重大',
+            'general': '较大',
+        };
+
+        const cases = [{
+            id: 1,
+            title: '大连中石油国际储运公司"7·16"特别重大输油管道爆炸火灾事故',
+            category: '特别重大事故',
+            time: '2010年7月16日',
+            location: '辽宁省大连市中石油国际储运有限公司原油罐区',
+            type: '爆炸火灾',
+            casualties: '1名作业人员失踪，灭火过程中1名消防战士牺牲',
+            economicLoss: '约2.2亿元',
+            process: '在油轮卸油作业完毕停止卸油的情况下，服务商上海祥诚公司继续向卸油管线中加入大量脱硫化氢剂（主要成分为双氧水），造成脱硫化氢剂在加剂口附近输油管段内局部富集并发生放热反应，引起输油管道发生爆炸，原油泄漏并引发火灾。大火持续燃烧15个小时，部分泄漏原油流入附近海域造成污染。',
+            directCause: '违规在停止卸油后继续向输油管道注入含有强氧化剂的原油脱硫剂，造成管道内发生化学爆炸。',
+            lessons: '· 对所加入原油脱硫剂的安全可靠性没有进行科学论证\n· 加入方法没有正规设计，未对加注作业进行风险辨识\n· 未制定安全作业规程，现场作业疏于管理，监护不力\n· 在暂停卸油后没有及时停止加剂作业'
+        }, {
+            id: 2,
+            title: '中石化青岛"11·22"输油管道泄漏爆炸特别重大事故',
+            category: '特别重大事故',
+            time: '2013年11月22日',
+            location: '山东省青岛市黄岛区',
+            type: '泄漏爆炸',
+            casualties: '62人死亡、136人受伤',
+            economicLoss: '7.5亿元',
+            process: '输油管道与排水暗渠交汇处管道腐蚀减薄、管道破裂、原油泄漏，流入排水暗渠及反冲到路面。现场处置人员采用液压破碎锤在暗渠盖板上打孔破碎，产生撞击火花，引发暗渠内油气爆炸。',
+            directCause: '事故管道管理方2009年、2011年、2013年先后3次对事故管道外防腐层及局部管体进行检测，均未能发现事故段管道严重腐蚀等重大隐患；对事故风险评估出现严重错误，没有及时下达启动应急预案的指令；现场处置人员盲目动用非防爆设备进行作业，严重违规违章。',
+            lessons: '· 管道检测技术存在盲区，未能及时发现严重腐蚀隐患\n· 企业应急预案启动不及时，信息报告存在漏报问题\n· 应急救援人员职责和应对措施不熟悉\n· 现场处置严重违规，使用非防爆设备'
+        }, {
+            id: 3,
+            title: '天津港"8·12"瑞海公司危险品仓库特别重大火灾爆炸事故',
+            category: '特别重大事故',
+            time: '2015年8月12日',
+            location: '天津市滨海新区瑞海公司危险品仓库',
+            type: '火灾爆炸',
+            casualties: '165人死亡、8人失踪、798人受伤',
+            economicLoss: '68.66亿元',
+            process: '瑞海公司危险品仓库运抵区南侧集装箱内的硝化棉由于湿润剂散失出现局部干燥，在高温（天气）等因素的作用下加速分解放热，积热自燃，引起相邻集装箱内的硝化棉和其他危险化学品长时间大面积燃烧，导致堆放于运抵区的硝酸铵等危险化学品发生爆炸。事故先后发生两次剧烈爆炸，造成巨大人员伤亡和财产损失。',
+            directCause: '硝化棉局部干燥后积热自燃，引发相邻危险化学品长时间燃烧，最终导致硝酸铵等爆炸。',
+            lessons: '· 企业违法经营、违规存放危险化学品\n· 安全评价、环评等中介服务机构严重违法违规，出具虚假失实评价报告\n· 地方政府和有关部门监管不到位\n· 危险化学品仓储布局不合理，与周边居民区安全距离不足'
+        }, {
+            id: 4,
+            title: '江苏响水天嘉宜化工有限公司"3·21"特别重大爆炸事故',
+            category: '特别重大事故',
+            time: '2019年3月21日',
+            location: '江苏省盐城市响水县陈家港镇化工园区',
+            type: '爆炸',
+            casualties: '78人死亡、76人重伤、640人住院治疗',
+            economicLoss: '19.86亿元',
+            process: '天嘉宜公司旧固废库内长期违法贮存的硝化废料持续积热升温导致自燃，燃烧引发爆炸。爆炸波及周边16家企业，造成重大人员伤亡和财产损失。现场储存了约600吨硝化废物，相当于430吨左右的TNT当量。',
+            directCause: '长期违法贮存的硝化废料（主要成分为三硝基二酚、间二硝基苯等）持续积热升温导致自燃，燃烧引发爆炸。硝化废料起始温度在39.2℃时，贮存一年后温度会升至自燃点；起始温度在17.3℃时，七年后会发生自燃。天嘉宜公司硝化废物累积存放了7年，越堆越高，导致中间部分热量无法散发，温度缓慢上升，最终达到自燃点引发爆炸。',
+            lessons: '· 企业长期违法贮存危险废物，安全主体责任完全不落实\n· 相关环评、安评等中介服务机构严重违法违规，出具虚假失实评价报告\n· 地方党政领导干部安全生产责任制落实不到位\n· 化工园区发展无序，安全管理问题突出\n· 对非法违法行为打击不力，监管执法宽松软\n· 44名责任人被采取刑事强制措施'
+        }, {
+            id: 5,
+            title: '河北赵县克尔化工有限公司"2·28"重大爆炸事故',
+            category: '重大事故',
+            time: '2012年2月28日',
+            location: '河北省石家庄市赵县工业园区',
+            type: '爆炸',
+            casualties: '25人死亡、4人失踪、46人受伤',
+            economicLoss: '4459万元',
+            process: '1号反应釜底部保温放料球阀的伴热导热油软管连接处发生泄漏自燃着火，当班工人使用灭火器紧急扑灭火情。其后20多分钟内，又发生三至四次同样火情，均被扑灭。9时4分许，1号反应釜突然爆炸，爆炸所产生的高强度冲击波以及高温、高速飞行的金属碎片瞬间引爆堆放在1号反应釜附近的硝酸胍，引起次生爆炸。一车间被全部炸毁，爆炸当量相当于6.05吨TNT。',
+            directCause: '反应釜底部用导热油伴热的放料阀处导热油泄漏着火，致使釜内反应产物硝酸胍和未反应完的硝酸铵局部受热，发生爆炸。操作人员擅自将导热油加热器出口温度设定高限由215℃提高至255℃，使反应釜内物料温度接近了硝酸胍的爆燃点（270℃）。',
+            lessons: '· 擅自变更生产工艺、改造放料和导热油系统\n· 擅自提高导热油加热器出口温度设定高限\n· 安全生产责任不落实，管理混乱，生产组织严重失控\n· 从业人员不具备化工生产专业技能，培训不到位\n· 违规大量堆放危险化学品，造成事故后果扩大'
+        }, {
+            id: 6,
+            title: '山东滨州博兴县诚力供气公司"1·08"重大爆炸事故',
+            category: '重大事故',
+            time: '2013年1月8日',
+            location: '山东省滨州市博兴县诚力供气有限公司',
+            type: '爆炸',
+            casualties: '10人死亡、多人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '停产检修期间，煤气管道置换不彻底，违规动火作业引发残余煤气爆炸，造成车间坍塌及重大人员伤亡。',
+            directCause: '检维修动火作业前，未对煤气管道系统进行有效隔离和气体置换，残余煤气遇明火发生剧烈爆炸。',
+            lessons: '· 检维修作业安全确认制度缺失，未落实“能量隔离”措施\n· 动火作业未严格履行审批手续，流于形式\n· 设备置换和吹扫不彻底，安全措施执行不到位'
+        }, {
+            id: 7,
+            title: '福建腾龙芳烃（漳州）有限公司"4·6"重大爆炸着火事故',
+            category: '重大事故',
+            time: '2015年4月6日',
+            location: '福建省漳州市古雷港经济开发区',
+            type: '爆炸着火',
+            casualties: '6人受伤、13名周边群众留院观察',
+            economicLoss: '9457万元',
+            process: '在二甲苯装置开工引料过程中出现压力和流量波动，引发液击，致使存在焊接质量问题的管道焊口断裂，物料外泄。泄漏的物料被鼓风机吸入，进入加热炉发生爆炸，导致临近的重石脑油储罐和轻重整液储罐爆裂燃烧。',
+            directCause: '管道焊接质量存在问题，开工引料过程中液击导致焊口断裂，泄漏物料被鼓风机吸入加热炉引发爆炸。',
+            lessons: '· 管道焊接质量把关不严，埋下重大隐患\n· 开工引料过程工艺控制不到位\n· 对液击等异常工况的风险辨识不足'
+        }, {
+            id: 8,
+            title: '山东东营滨源化学公司"8·31"重大爆炸事故',
+            category: '重大事故',
+            time: '2015年8月31日',
+            location: '山东省东营市利津县刁口乡',
+            type: '爆炸',
+            casualties: '13人死亡、25人受伤',
+            economicLoss: '4326万元',
+            process: '滨源公司新建年产2万吨改性型胶粘新材料联产项目二胺车间混二硝基苯装置在投料试车过程中发生重大爆炸事故。8月28日至31日先后三次投料试车，均因温度波动大、运行不稳定而停车。31日23时18分，车间人员违规向地面排放硝化再分离器内含有混二硝基苯的物料，引发起火燃烧并导致爆炸。',
+            directCause: '车间负责人违章指挥，安排操作人员违规向地面排放硝化再分离器内含有混二硝基苯的物料，混二硝基苯在硫酸、硝酸以及硝酸分解出的二氧化氮等强氧化剂存在的条件下，自高处排向一楼水泥地面，在冲击力作用下起火燃烧，火焰炙烤附近的硝化机、预洗机等设备，使其中含有二硝基苯的物料温度升高，引发爆炸。',
+            lessons: '· 违法建设，未取得相关部门审批手续擅自开工建设\n· 违规投料试车，未严格按规范进行"三查四定"\n· 违章指挥、强令冒险作业\n· 边施工、边建设、边试车，试车厂区违规临时居住施工人员\n· 27名相关责任人员受到党纪政纪处分，企业负责人被追究刑事责任'
+        }, {
+            id: 9,
+            title: '山东临沂金誉石化有限公司"6·5"重大爆炸着火事故',
+            category: '重大事故',
+            time: '2017年6月5日',
+            location: '山东省临沂市临港经济开发区',
+            type: '爆炸着火',
+            casualties: '10人死亡、9人受伤',
+            economicLoss: '约4468万元',
+            process: '一辆液化气运输罐车在卸车作业过程中，快速接头卡口未连接牢固，接头处发生脱开造成液化气大量泄漏。泄漏后的液化气急剧气化扩散，与空气形成爆炸性混合气体，遇到点火源发生爆炸。爆炸导致泄漏车辆罐体、装卸区内停放的其他运输车辆罐体相继爆炸，罐体残骸等飞溅物击中周边设施、物料管廊、液化气球罐、异辛烷储罐等，引发连锁爆炸燃烧。',
+            directCause: '液化气罐车卸车时快接接口未可靠连接导致液化气大量泄漏；驾驶员连续32小时疲劳作业，操作出现严重失误；现场人员未能有效处置，泄漏长达2分10秒。',
+            lessons: '· 驾驶员长途奔波、连续作业，疲劳操作导致严重失误\n· 企业未落实动态监控，装卸区防火防爆措施缺失\n· 现场人员应急处置能力不足，未能及时有效处置泄漏\n· 装卸臂快接口两个定位锁止扳把没有闭合，安全联锁失效'
+        }, {
+            id: 10,
+            title: '四川省宜宾恒达科技有限公司"7·12"重大爆炸事故',
+            category: '重大事故',
+            time: '2018年7月12日',
+            location: '四川省宜宾市江安县阳春工业园区',
+            type: '爆炸着火',
+            casualties: '19人死亡、12人受伤',
+            economicLoss: '4142万余元',
+            process: '操作人员将无包装标识的氯酸钠当作丁酰胺，补充投入到R301釜中进行脱水操作。在搅拌状态下，丁酰胺-氯酸钠混合物形成具有迅速爆燃能力的爆炸体系，开启蒸汽加热后，物料之间、物料与釜内附件和内壁相互撞击、摩擦，引起釜内的丁酰胺-氯酸钠混合物发生化学爆炸，爆炸导致釜体解体；随釜体解体过程冲出的高温甲苯蒸气，迅速与外部空气形成爆炸性混合物并产生二次爆炸。',
+            directCause: '操作人员将氯酸钠误当作丁酰胺投入反应釜，两种物料混合形成爆炸体系，在加热条件下发生化学爆炸。',
+            lessons: '· 物料管理混乱，无包装标识的物料未进行确认即投入使用\n· 操作人员培训不到位，对物料危险性认识不足\n· 工艺安全管理缺失，未对物料混淆风险进行辨识'
+        }, {
+            id: 11,
+            title: '河北张家口中国化工集团盛华化工"11·28"重大爆燃事故',
+            category: '重大事故',
+            time: '2018年11月28日',
+            location: '河北省张家口市桥东区大仓盖镇',
+            type: '泄漏爆燃',
+            casualties: '24人死亡、21人受伤',
+            economicLoss: '4148.86万元',
+            process: '盛华化工公司聚氯乙烯车间的1#氯乙烯气柜长期未按规定检修，事发前气柜卡顿、倾斜并开始泄漏。操作人员未及时发现异常，仍按常规操作调大压缩机回流，导致氯乙烯冲破环形水封泄漏，向厂区外扩散，遇火源发生爆燃。事故还导致38辆大货车和12辆小型车损毁。',
+            directCause: '氯乙烯气柜长期未按规定检修，带病运行；操作人员未及时发现异常，违规操作导致氯乙烯泄漏扩散，遇火源爆燃。',
+            lessons: '· 安全管理混乱，主要负责人及重要部门负责人长期不在岗\n· 劳动纪律涣散，工艺管理形同虚设\n· 对高风险装置设施重视不够，风险管控措施不足\n· 隐患排查治理不到位，设备带病运行\n· 12名责任人被追究刑事责任，28人受到党纪政纪处分'
+        }, {
+            id: 12,
+            title: '河南三门峡义马气化厂"7·19"重大爆炸事故',
+            category: '重大事故',
+            time: '2019年7月19日',
+            location: '河南省三门峡市义马市',
+            type: '爆炸',
+            casualties: '15人死亡、16人重伤、175人轻伤',
+            economicLoss: '8170万元',
+            process: '义马气化厂C套空分装置冷箱阀连接管道发生泄漏，长达23天没有处置。富氧液体泄漏至珠光砂中，低温造成冷箱支撑框架和冷箱板冷脆，冷箱超压发生剧烈喷砂（"砂爆"），导致冷箱倒塌，砸裂东侧500m³液氧贮槽及停放在旁边的液氧槽车油箱，大量液氧外泄。周围可燃物在液氧或富氧条件下发生爆炸、燃烧，造成周边人员大量伤亡。',
+            directCause: '空分装置冷箱泄漏未及时处理，发生"砂爆"，冷箱倒塌砸裂液氧贮槽，大量液氧外泄，周围可燃物在富氧条件下发生爆炸燃烧。',
+            lessons: '· 设备带病运行，隐患一拖再拖，从小拖大，拖至爆炸\n· 不按安全管理制度和操作规程停车检修\n· 设备管理不规范，备用设备不能随时启动切换\n· 不按规定开展隐患排查，不如实上报隐患\n· 工厂设计布局不合理，对空气分离等配套装置安全生产重视不够'
+        }, {
+            id: 13,
+            title: '江苏南京"7·28"地下丙烯管道泄漏爆燃事故',
+            category: '较大事故',
+            time: '2010年7月28日',
+            location: '江苏省南京市栖霞区迈皋桥街道',
+            type: '泄漏爆燃',
+            casualties: '22人死亡、120人受伤',
+            economicLoss: '4784万元',
+            process: '个体拆除施工队擅自组织开挖地下管道、现场盲目指挥并野蛮操作挖掘机挖穿地下丙烯管道，导致丙烯大量泄漏，迅速扩散后遇点火源引发爆燃。',
+            directCause: '个体拆除施工队擅自组织开挖地下管道、现场盲目指挥并野蛮操作挖掘机挖穿地下丙烯管道，导致丙烯大量泄漏，迅速扩散后遇点火源引发爆燃。',
+            lessons: '· 施工前未进行地下管线勘察和技术交底\n· 盲目指挥、野蛮作业，安全防护措施全无\n· 对施工区域内的重大危险源缺乏辨识和管控'
+        }, {
+            id: 14,
+            title: '黑龙江哈尔滨凯乐化学制品厂"8·5"较大爆炸事故',
+            category: '较大事故',
+            time: '2011年8月5日',
+            location: '黑龙江省哈尔滨市',
+            type: '爆炸',
+            casualties: '3人死亡、1人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '4名工作人员对亚氯酸钠及柠檬酸进行分装操作时，亚氯酸钠固体遇到明火或其他点火源引起着火和燃爆，导致库内存放的桶装亚氯酸钠爆燃。',
+            directCause: '4名工作人员对亚氯酸钠及柠檬酸进行分装操作时，亚氯酸钠固体遇到明火或其他点火源引起着火和燃爆，导致库内存放的桶装亚氯酸钠爆燃。',
+            lessons: '· 危险化学品分装作业不规范，未在专用区域进行\n· 现场火源管控缺失，对易燃易爆物料静电、明火防护不足\n· 从业人员对亚氯酸钠等强氧化剂的危险特性认识严重不足'
+        }, {
+            id: 15,
+            title: '浙江宁波江宁化工公司"8·7"较大中毒窒息事故',
+            category: '较大事故',
+            time: '2013年8月7日',
+            location: '浙江省宁波市',
+            type: '中毒窒息',
+            casualties: '3人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '3名分包商无证射线检测作业人员违章进入顺酐反应器进行焊缝探伤作业，因与反应器连接的氮气管道未安全隔绝，气相侧操作员误开氮气管道阀门，将氮气通入反应器中，导致3人窒息死亡。',
+            directCause: '3名分包商无证射线检测作业人员违章进入顺酐反应器进行焊缝探伤作业，因与反应器连接的氮气管道未安全隔绝，气相侧操作员误开氮气管道阀门，将氮气通入反应器中，导致3人窒息死亡。',
+            lessons: '· 特殊（受限空间）作业管理失控，未办理作业票\n· 承包商人员无证上岗，安全教育培训严重缺失\n· 能量隔离措施形同虚设，未对氮气管道加盲板'
+        }, {
+            id: 16,
+            title: '辽宁抚顺顺特化工公司"9·14"较大爆炸火灾事故',
+            category: '较大事故',
+            time: '2013年9月14日',
+            location: '辽宁省抚顺市',
+            type: '爆炸火灾',
+            casualties: '5人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '作业人员在罐顶违章进行电焊作业，产生的火花引爆了作业罐顶采样孔外溢的原甲酸三甲酯蒸气，并回火至罐内，造成罐内爆炸性混合气体爆炸。',
+            directCause: '作业人员在罐顶违章进行电焊作业，产生的火花引爆了作业罐顶采样孔外溢的原甲酸三甲酯蒸气，并回火至罐内，造成罐内爆炸性混合气体爆炸。',
+            lessons: '· 动火作业管理失控，未办理审批手续，未进行气体检测\n· 对储罐呼吸阀/采样口等可能泄漏点的风险辨识不足\n· 违章指挥，作业人员安全意识淡薄'
+        }, {
+            id: 17,
+            title: '宁夏瑞泰科技公司"7·1"较大爆炸事故',
+            category: '较大事故',
+            time: '2014年7月1日',
+            location: '宁夏回族自治区',
+            type: '爆炸',
+            casualties: '4人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '储罐内的N-（6-氯-3-吡啶甲基）甲胺长时间处于保温状态，发生了缩聚反应，产生的大量热量和气体不能及时排出，导致容器超压爆炸。',
+            directCause: '储罐内的N-（6-氯-3-吡啶甲基）甲胺长时间处于保温状态，发生了缩聚反应，产生的大量热量和气体不能及时排出，导致容器超压爆炸。',
+            lessons: '· 对物料的化学稳定性和热危险性缺乏深入研究\n· 储罐安全泄压装置（安全阀、爆破片）配置或维护不足\n· 工艺温度控制及保温管理存在缺陷，未进行实时监控'
+        }, {
+            id: 18,
+            title: '内蒙古乌海华资煤焦公司"6·27"较大爆炸事故',
+            category: '较大事故',
+            time: '2017年6月27日',
+            location: '内蒙古自治区乌海市',
+            type: '爆炸',
+            casualties: '3人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '脱硫溶液循环罐中的氨气或其他可燃性挥发气体与吸入的空气形成爆炸性混合气，机修班在未办理动火作业票的情况下，在脱硫溶液循环罐顶安装管道，切割或焊接形成的点火源引爆了罐内的爆炸性混合气体。',
+            directCause: '脱硫溶液循环罐中的氨气或其他可燃性挥发气体与吸入的空气形成爆炸性混合气，机修班在未办理动火作业票的情况下，在脱硫溶液循环罐顶安装管道，切割或焊接形成的点火源引爆了罐内的爆炸性混合气体。',
+            lessons: '· 动火作业票制度形同虚设，未办理审批即进行焊接\n· 对含氨、挥发性有机物等可燃气体环境风险辨识缺失\n· 作业前未进行可燃气体浓度检测，未采取清洗或置换措施'
+        }, {
+            id: 19,
+            title: '辽宁大连西太平洋石油化工公司"11·18"较大中毒事故',
+            category: '较大事故',
+            time: '2017年11月18日',
+            location: '辽宁省大连市',
+            type: '中毒窒息',
+            casualties: '3人死亡、6人受伤',
+            economicLoss: '368万元',
+            process: '承包商河南鄢陵京顺石化机械设备公司在清洗两台换热器作业中，使用含盐酸的清洗剂，并将清洗剂直接倒在含有硫化亚铁和二硫化亚铁污垢的管束上，反应释放出硫化氢气体，导致9名作业人员中毒。',
+            directCause: '承包商河南鄢陵京顺石化机械设备公司在清洗两台换热器作业中，使用含盐酸的清洗剂，并将清洗剂直接倒在含有硫化亚铁和二硫化亚铁污垢的管束上，反应释放出硫化氢气体，导致9名作业人员中毒。',
+            lessons: '· 承包商管理混乱，安全交底缺失\n· 清洗剂选用严重错误，未考虑与污垢的化学反应风险\n· 作业现场未配备硫化氢检测仪和防毒面具，应急演练不足'
+        }, {
+            id: 20,
+            title: '中石油乌鲁木齐石化公司"11·30"较大机械伤害事故',
+            category: '较大事故',
+            time: '2017年11月30日',
+            location: '新疆维吾尔自治区乌鲁木齐市',
+            type: '机械伤害',
+            casualties: '5人死亡、2人重伤、14人轻伤',
+            economicLoss: '645万元',
+            process: '设备安装公司施工人员在进行油浆蒸汽发生器检修时，带压拆卸油浆蒸汽发生器壳体与管箱的连接螺栓，螺栓断裂失效，管箱与管束突出，撞击现场人员导致伤亡。',
+            directCause: '设备安装公司施工人员在进行油浆蒸汽发生器检修时，带压拆卸油浆蒸汽发生器壳体与管箱的连接螺栓，螺栓断裂失效，管箱与管束突出，撞击现场人员导致伤亡。',
+            lessons: '· 严重违反“严禁带压拆卸”的安全禁令\n· 检修方案未经安全审核确认，未进行泄压和能量隔离\n· 现场人员未撤离至安全区域，警戒防护缺失'
+        }, {
+            id: 21,
+            title: '辽宁先达农业科学有限公司"2·11"爆炸事故',
+            category: '较大事故',
+            time: '2020年2月11日',
+            location: '辽宁省葫芦岛经济开发区',
+            type: '爆炸',
+            casualties: '5人死亡、10人受伤',
+            economicLoss: '约1200万元',
+            process: '烯草酮工段操作人员未对物料进行复核确认，错误地将丙酰三酮加入到氯代胺储罐内，导致丙酰三酮和氯代胺在储罐内发生反应，放热并积累热量，物料温度逐渐升高，最终导致物料分解、爆炸。',
+            directCause: '烯草酮工段操作人员未对物料进行复核确认，错误地将丙酰三酮加入到氯代胺储罐内，导致丙酰三酮和氯代胺在储罐内发生反应，放热并积累热量，物料温度逐渐升高，最终导致物料分解、爆炸。',
+            lessons: '· 企业对丙酰三酮和氯代胺交互反应危险性数据和信息不了解\n· 没有对丙酰三酮和氯代胺交互反应危害性和风险进行分析\n· 操作人员未严格执行操作规程\n· 对操作人员的培训不足，关键岗位人员能力缺乏评估和验证'
+        }, {
+            id: 22,
+            title: '内蒙古鄂尔多斯华冶煤焦化有限公司"4·30"火灾事故',
+            category: '较大事故',
+            time: '2020年4月30日',
+            location: '内蒙古自治区鄂尔多斯市',
+            type: '燃爆',
+            casualties: '4人死亡',
+            economicLoss: '843.7万元',
+            process: '作业人员违反安全作业规定，在2#电捕焦油器顶部进行作业时，未有效切断煤气来源，导致煤气漏入2#电捕焦油器内部，与空气形成易燃易爆混合气体，作业过程中产生明火，发生燃爆。',
+            directCause: '作业人员违反安全作业规定，在2#电捕焦油器顶部进行作业时，未有效切断煤气来源，导致煤气漏入2#电捕焦油器内部，与空气形成易燃易爆混合气体，作业过程中产生明火，发生燃爆。',
+            lessons: '· 煤气来源切断措施不到位，未加装盲板\n· 作业前未进行可燃气体浓度检测\n· 违章动火，安全措施未落实即开始作业'
+        }, {
+            id: 23,
+            title: '云南泗南江水电站"5·29"较大爆燃事故',
+            category: '较大事故',
+            time: '2020年5月29日',
+            location: '云南省墨江县',
+            type: '爆燃',
+            casualties: '7人死亡、4人受伤',
+            economicLoss: '1578.98万元',
+            process: '异常水文气象条件致使淤泥产生大量甲烷和二氧化碳为主的混合气体，在冲沙作业过程中受峡谷风作用逆向涌进闸门操作室，遇点火源引发含甲烷气体爆燃。',
+            directCause: '异常水文气象条件致使淤泥产生大量甲烷和二氧化碳为主的混合气体，在冲沙作业过程中受峡谷风作用逆向涌进闸门操作室，遇点火源引发含甲烷气体爆燃。',
+            lessons: '· 对水电站有限空间（闸门室）甲烷积聚风险认识不足\n· 未针对异常水文气象条件进行预警和风险研判\n· 作业现场通风换气措施缺失，未配备气体检测报警仪'
+        }, {
+            id: 24,
+            title: '湖北仙桃蓝化有机硅有限公司"8·3"闪爆事故',
+            category: '较大事故',
+            time: '2020年8月3日',
+            location: '湖北省仙桃市',
+            type: '闪爆',
+            casualties: '6人死亡、4人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '操作工在清理分层塔内积液时，没有彻底将分层塔底部丁酮肟盐酸盐排放至萃取工序，导致大量丁酮肟盐酸盐随上层清液进入产品中和工序，进入1#静置槽继续反应，反应热量在静置槽中累积，静置槽没有温度监测及降温措施，丁酮肟盐酸盐发生分解爆炸。发生爆炸的装置未经正规设计，违法私自组织建设开工。',
+            directCause: '操作工在清理分层塔内积液时，没有彻底将分层塔底部丁酮肟盐酸盐排放至萃取工序，导致大量丁酮肟盐酸盐随上层清液进入产品中和工序，进入1#静置槽继续反应，反应热量在静置槽中累积，静置槽没有温度监测及降温措施，丁酮肟盐酸盐发生分解爆炸。发生爆炸的装置未经正规设计，违法私自组织建设开工。',
+            lessons: '· 装置未经正规设计，违法私自组织建设开工\n· 工艺参数监控严重缺失（无温度监测和降温设施）\n· 操作规程不完善，未明确废液排放和残留物处理要求'
+        }, {
+            id: 25,
+            title: '山西晋茂能源科技有限公司"9·14"中毒事故',
+            category: '较大事故',
+            time: '2020年9月14日',
+            location: '山西省孝义市',
+            type: '中毒',
+            casualties: '4人死亡、1人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: 'VOCs工段操作人员操作不当，将酸洗塔废液排入地槽，又把碱洗塔内的碱性废液排入地槽，地下槽内酸碱废液发生反应，生成硫化氢气体溢散导致人员中毒。该企业计划关闭退出，临近关闭安全管理松懈。',
+            directCause: 'VOCs工段操作人员操作不当，将酸洗塔废液排入地槽，又把碱洗塔内的碱性废液排入地槽，地下槽内酸碱废液发生反应，生成硫化氢气体溢散导致人员中毒。该企业计划关闭退出，临近关闭安全管理松懈。',
+            lessons: '· 临近关闭退出期安全管理松懈，风险意识下降\n· 危险废物（废液）处置管理混乱，未分类存放\n· 未对废液混合可能产生的化学反应（生成H₂S）进行评估和预警'
+        }, {
+            id: 26,
+            title: '甘肃张掖耀邦化工科技有限公司"9·14"中毒事故',
+            category: '较大事故',
+            time: '2020年9月14日',
+            location: '甘肃省张掖市高台县盐池工业园区',
+            type: '中毒',
+            casualties: '3人死亡',
+            economicLoss: '450万元',
+            process: '企业污水处理厂当班人员违反操作规程将盐酸快速加入含有大量硫化物的废水池内进行中和，致使大量硫化氢气体短时间内快速溢出，当班人员在未穿戴安全防护用品的情况下冒险进入危险场所，吸入高浓度的硫化氢等有毒混合气体，导致人员中毒。',
+            directCause: '企业污水处理厂当班人员违反操作规程将盐酸快速加入含有大量硫化物的废水池内进行中和，致使大量硫化氢气体短时间内快速溢出，当班人员在未穿戴安全防护用品的情况下冒险进入危险场所，吸入高浓度的硫化氢等有毒混合气体，导致人员中毒。',
+            lessons: '· 擅自改变生产废水处理工艺和方式\n· 未对专家提出的15条隐患问题进行彻底整改即违法组织试生产\n· 安全教育培训制度和安全管理职责未落实'
+        }, {
+            id: 27,
+            title: '湖北天门楚天生物科技有限公司"9·28"爆炸事故',
+            category: '较大事故',
+            time: '2020年9月28日',
+            location: '湖北省天门市',
+            type: '爆炸',
+            casualties: '6人死亡、1人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '在使用压滤试验机对二硝基蒽醌滤料进行压滤作业时，滤料在压力作用下流动，与聚丙烯纤维滤布摩擦产生静电，能量积聚达到滤料的静电爆发临界值后，引发滤料起火分解，压滤试验机内温度和压力急剧升高，导致压滤试验机内的二硝基蒽醌爆炸。',
+            directCause: '在使用压滤试验机对二硝基蒽醌滤料进行压滤作业时，滤料在压力作用下流动，与聚丙烯纤维滤布摩擦产生静电，能量积聚达到滤料的静电爆发临界值后，引发滤料起火分解，压滤试验机内温度和压力急剧升高，导致压滤试验机内的二硝基蒽醌爆炸。',
+            lessons: '· 对二硝基蒽醌等硝基化合物的静电感度及热分解特性缺乏了解\n· 压滤设备未采取有效的静电接地和导除措施\n· 试验性生产未进行安全风险评估，工艺安全信息严重缺失'
+        }, {
+            id: 28,
+            title: '广西北海液化天然气有限责任公司"11·2"较大着火事故',
+            category: '较大事故',
+            time: '2020年11月2日',
+            location: '广西壮族自治区北海市',
+            type: '着火',
+            casualties: '7人死亡、2人重伤',
+            economicLoss: '2029万元',
+            process: '在实施二期工程项目贫富液同时装车工程TK-02储罐二层平台低压泵出口总管动火作业切割过程中，隔离阀门开启，低压外输汇管中的LNG从切割开的管口中喷出，LNG雾化气团与空气的混合气体遇可能的点火能量产生燃烧。',
+            directCause: '在实施二期工程项目贫富液同时装车工程TK-02储罐二层平台低压泵出口总管动火作业切割过程中，隔离阀门开启，低压外输汇管中的LNG从切割开的管口中喷出，LNG雾化气团与空气的混合气体遇可能的点火能量产生燃烧。',
+            lessons: '· 动火作业前能量隔离措施失效（阀门误开启）\n· 未对LNG管线进行有效排空、置换和加装盲板\n· 动火作业审批和现场监护流于形式'
+        }, {
+            id: 29,
+            title: '江西吉安海洲医药化工有限公司"11·17"爆炸事故',
+            category: '较大事故',
+            time: '2020年11月17日',
+            location: '江西省吉安市井冈山经开区',
+            type: '爆炸',
+            casualties: '3人死亡、5人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '303釜处理的对甲苯磺酰脲废液中含有溶剂氯化苯，操作工使用真空泵转料至302釜中，因302釜刚蒸馏完前一批次物料尚未冷却降温，废液中的氯化苯受热形成爆炸性气体，转料过程中产生静电引起爆炸。',
+            directCause: '303釜处理的对甲苯磺酰脲废液中含有溶剂氯化苯，操作工使用真空泵转料至302釜中，因302釜刚蒸馏完前一批次物料尚未冷却降温，废液中的氯化苯受热形成爆炸性气体，转料过程中产生静电引起爆炸。',
+            lessons: '· 转料作业前未确认接收釜的温度，高温导致溶剂气化\n· 对废液组分（含氯化苯）的易燃易爆风险辨识不足\n· 转料管道未采取静电导除措施，防静电管理缺失'
+        }, {
+            id: 30,
+            title: '宁夏宁东能源化工基地畅亿清洁能源公司"10·24"较大爆燃事故',
+            category: '较大事故',
+            time: '2023年10月24日',
+            location: '宁夏宁东能源化工基地',
+            type: '爆燃',
+            casualties: '4人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '企业违规使用在建的乙二醇储罐储存工业废水，施工单位中冶建安公司在乙二醇储罐保温保冷施工中组织无特种作业资格人员在罐顶违规动火作业，引燃罐内积聚的易燃易爆气体，导致事故发生。',
+            directCause: '企业违规使用在建的乙二醇储罐储存工业废水，施工单位中冶建安公司在乙二醇储罐保温保冷施工中组织无特种作业资格人员在罐顶违规动火作业，引燃罐内积聚的易燃易爆气体，导致事故发生。',
+            lessons: '· 企业违规将生产储罐挪用为废水罐，导致可燃气体积聚\n· 施工单位组织无证人员从事特种作业，资质审核缺失\n· 动火作业前未对罐内气体进行检测，盲目开工'
+        }, {
+            id: 31,
+            title: '甘肃宏汇能源化工公司"6·11"较大窒息事故',
+            category: '较大事故',
+            time: '2024年6月11日',
+            location: '甘肃省',
+            type: '窒息',
+            casualties: '3人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '检修作业人员未按操作规程要求先吹扫、后置换、再检测，在未采取任何防护措施、未办理受限空间作业票的情况下违规打开人孔进行故障检查，一名作业人员窒息后，两名救援人员盲目施救导致事故扩大。',
+            directCause: '检修作业人员未按操作规程要求先吹扫、后置换、再检测，在未采取任何防护措施、未办理受限空间作业票的情况下违规打开人孔进行故障检查，一名作业人员窒息后，两名救援人员盲目施救导致事故扩大。',
+            lessons: '· 受限空间作业票制度形同虚设，未落实“先通风、再检测、后作业”\n· 应急救援预案缺失，现场人员缺乏自救互救常识，盲目施救\n· 作业现场未配备空气呼吸器、检测报警仪等防护装备'
+        }, {
+            id: 32,
+            title: '山东友道化学有限公司爆炸事故',
+            category: '较大事故',
+            time: '2025年5月27日',
+            location: '山东省',
+            type: '爆炸',
+            casualties: '10人死亡、2人失联、19人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '初步调查结果直指工艺技术缺陷与管理严重缺失两大核心问题，具体经过待官方调查报告公布。',
+            directCause: '初步调查结果直指工艺技术缺陷与管理严重缺失两大核心问题。',
+            lessons: '· 工艺安全风险评估严重不足，对反应热风险失控\n· 安全管理体系存在重大漏洞，隐患排查治理流于形式\n· 企业本质安全设计水平低下，自动化联锁保护缺失'
+        }, {
+            id: 33,
+            title: '山东菏泽帝捷化工公司离心机维修闪爆事故',
+            category: '较大事故',
+            time: '2025年4月22日',
+            location: '山东省菏泽市巨野县',
+            type: '闪爆',
+            casualties: '3人死亡、3人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '维修离心机过程中，未对设备内残留的易燃易爆气体进行置换和检测，动火或机械摩擦产生火花引发闪爆。',
+            directCause: '维修离心机时，未对设备内残留易燃易爆气体进行置换和检测，动火或机械摩擦引发闪爆。',
+            lessons: '· 检维修作业风险辨识缺失，未进行清洗和置换\n· 未办理动火/受限空间作业审批，特种作业人员无证上岗\n· 设备交出前安全确认程序完全缺失'
+        }, {
+            id: 34,
+            title: '湖北襄阳钛业公司"9·2"较大闪爆事故',
+            category: '较大事故',
+            time: '2025年9月2日',
+            location: '湖北省襄阳市',
+            type: '闪爆',
+            casualties: '5人死亡、1人受伤',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '龙佰襄阳钛业公司在处理低温余热系统－脱盐水加热器漏酸过程中，对脱盐水箱进行动火作业时发生闪爆。事故具体原因正在调查中。',
+            directCause: '动火作业前未对脱盐水箱内可能存在的可燃气体进行检测，焊接火花引燃箱内积聚的爆炸性气体（推测为氢气或有机物挥发气）。',
+            lessons: '· 动火作业前气体检测不到位，未分析水箱内气体组分\n· 对热交换系统泄漏物可能引发的次生风险（如产生氢气）辨识不足\n· 动火作业审批和安全措施确认存在严重漏洞'
+        }, {
+            id: 35,
+            title: '安徽池州鑫泰新材料公司"10·27"较大窒息事故',
+            category: '较大事故',
+            time: '2025年10月27日',
+            location: '安徽省池州市',
+            type: '窒息',
+            casualties: '4人死亡',
+            economicLoss: '（据公开报道，具体数额不详）',
+            process: '巡检人员进入冷冻盐水箱发生缺氧窒息，现场人员盲目施救，导致事故扩大。事故具体原因正在调查中。',
+            directCause: '巡检人员进入冷冻盐水箱发生缺氧窒息，现场人员盲目施救，导致事故扩大。事故具体原因正在调查中。',
+            lessons: '· 受限空间管理失控，未落实“先通风、再检测、后作业”\n· 现场应急预案和救援装备缺失，盲目施救导致伤亡扩大\n· 安全警示标识和隔离措施不到位，巡检人员误入危险区域'
+        }];
+
+        // ================================================================
+        //  状 态
+        // ================================================================
+
+        let currentFilter = '全部';
+        let currentSearch = '';
+        let selectedId = null;
+
+        // ================================================================
+        //  DOM 引 用
+        // ================================================================
+
+        const filterBar = document.getElementById('filterBar');
+        const caseList = document.getElementById('caseList');
+        const detailPanel = document.getElementById('detailPanel');
+        const placeholder = document.getElementById('placeholder');
+        const detailContent = document.getElementById('detailContent');
+        const searchInput = document.getElementById('searchInput');
+        const totalCount = document.getElementById('totalCount');
+
+        // ================================================================
+        //  工 具
+        // ================================================================
+
+        function getCategoryClass(cat) { return CATEGORY_MAP[cat] || 'general'; }
+        function getCategoryLabel(cat) { const key = CATEGORY_MAP[cat]; return CATEGORY_LABEL[key] || cat; }
+        function formatLessons(text) { if (!text) return null; return text.split('\n').filter(s => s.trim()); }
+
+        function highlightText(text, keyword) {
+            if (!keyword || !text) return text;
+            const reg = new RegExp(escapeRegex(keyword), 'gi');
+            return text.replace(reg, match => `<span class="highlight">${match}</span>`);
+        }
+        function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        function getSearchPreview(item, keyword) {
+            if (!keyword) return '';
+            const fields = [item.title, item.location, item.type, item.process, item.directCause, item.lessons];
+            for (const f of fields) {
+                if (f && f.toLowerCase().includes(keyword.toLowerCase())) {
+                    const text = typeof f === 'string' ? f : '';
+                    const trimmed = text.length > 80 ? text.substring(0, 80) + '…' : text;
+                    return highlightText(trimmed, keyword);
+                }
+            }
+            return '';
+        }
+
+        function getFilteredCases() {
+            return cases.filter(c => {
+                if (currentFilter !== '全部' && c.category !== currentFilter) return false;
+                if (currentSearch.trim()) {
+                    const kw = currentSearch.trim().toLowerCase();
+                    const fields = [c.title, c.location, c.type, c.process, c.directCause, c.lessons];
+                    return fields.some(f => f && f.toLowerCase().includes(kw));
+                }
+                return true;
+            });
+        }
+
+        // ================================================================
+        //  渲 染
+        // ================================================================
+
+        function renderFilterBar() {
+            const categories = ['全部', ...new Set(cases.map(c => c.category))];
+            const counts = {};
+            cases.forEach(c => { counts[c.category] = (counts[c.category] || 0) + 1; });
+            counts['全部'] = cases.length;
+
+            filterBar.innerHTML = categories.map(cat => {
+                const count = counts[cat] || 0;
+                const active = currentFilter === cat ? 'active' : '';
+                const label = cat === '全部' ? '全部' : getCategoryLabel(cat);
+                return `<span class="tag ${active}" data-category="${cat}">${label} <span class="count">(${count})</span></span>`;
+            }).join('');
+
+            filterBar.querySelectorAll('.tag').forEach(el => {
+                el.addEventListener('click', function() {
+                    currentFilter = this.dataset.category;
+                    renderFilterBar();
+                    renderList();
+                    if (selectedId !== null) {
+                        const stillVisible = getFilteredCases().some(c => c.id === selectedId);
+                        if (!stillVisible) { selectedId = null; showPlaceholder(); } 
+                        else { const c = cases.find(c => c.id === selectedId); if (c) renderDetail(c); }
+                    }
+                });
+            });
+        }
+
+        function renderList() {
+            const filtered = getFilteredCases();
+            totalCount.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                caseList.innerHTML = `
+                    <div class="empty-msg">
+                        <span class="big-icon">🔎</span>
+                        没有找到匹配的案例<br>
+                        <span style="font-size:0.85rem;">试试其他关键词或筛选条件</span>
+                    </div>
+                `;
+                return;
+            }
+
+            caseList.innerHTML = filtered.map(c => {
+                const catClass = getCategoryClass(c.category);
+                const catLabel = getCategoryLabel(c.category);
+                const isActive = selectedId === c.id ? 'active' : '';
+                const preview = getSearchPreview(c, currentSearch) || c.process?.substring(0, 60) || c.directCause
+                    ?.substring(0, 60) || '';
+                const previewText = preview || '点击查看详情';
+
+                return `
+                    <div class="case-item ${isActive}" data-id="${c.id}">
+                        <div class="item-title">
+                            <span>${highlightText(c.title, currentSearch)}</span>
+                            <span class="badge ${catClass}">${catLabel}</span>
+                        </div>
+                        <div class="item-meta">
+                            <span>📅 ${c.time}</span>
+                            <span>📍 ${c.location}</span>
+                            <span>⚡ ${c.type}</span>
+                            ${c.casualties ? `<span>💔 ${c.casualties}</span>` : ''}
+                        </div>
+                        ${previewText ? `<div class="item-preview">${previewText}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            caseList.querySelectorAll('.case-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    const c = cases.find(c => c.id === id);
+                    if (c) { selectedId = id; renderList(); renderDetail(c); }
+                });
+            });
+
+            if (selectedId !== null) {
+                const activeEl = caseList.querySelector('.case-item.active');
+                if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        function showPlaceholder() {
+            placeholder.style.display = 'flex';
+            detailContent.style.display = 'none';
+        }
+
+        function renderDetail(c) {
+            placeholder.style.display = 'none';
+            detailContent.style.display = 'block';
+
+            const catClass = getCategoryClass(c.category);
+            const catLabel = getCategoryLabel(c.category);
+            const lessonsList = formatLessons(c.lessons);
+
+            const metaItems = [
+                { label: '发生时间', value: c.time },
+                { label: '发生地点', value: c.location },
+                { label: '事故类型', value: c.type },
+                { label: '伤亡情况', value: c.casualties || '（资料不详）' },
+                { label: '直接经济损失', value: c.economicLoss || '（资料不详）' },
+            ];
+
+            let html = `
+                <div class="detail-content">
+                    <span class="detail-category ${catClass}">${catLabel} · ${c.category}</span>
+                    <h1>${c.title}</h1>
+                    <div class="detail-meta-grid">
+                        ${metaItems.map(m => `
+                            <div class="meta-item">
+                                <span class="label">${m.label}</span>
+                                <span class="value">${m.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+            `;
+
+            if (c.process) {
+                html += `
+                    <div class="detail-section">
+                        <h3><span class="icon">📋</span> 事故经过</h3>
+                        <div class="block"><p>${c.process}</p></div>
+                    </div>
+                `;
+            }
+            if (c.directCause) {
+                html += `
+                    <div class="detail-section">
+                        <h3><span class="icon">⚡</span> 直接原因</h3>
+                        <div class="block"><p>${c.directCause}</p></div>
+                    </div>
+                `;
+            }
+            if (lessonsList && lessonsList.length > 0) {
+                html += `
+                    <div class="detail-section">
+                        <h3><span class="icon">⚠️</span> 主要教训</h3>
+                        <div class="block">
+                            <ul>${lessonsList.map(item => `<li>${item.trim().replace(/^·\s*/, '')}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                `;
+            }
+            if (!c.process && !c.directCause && (!lessonsList || lessonsList.length === 0)) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-empty">📌 该案例详细资料暂未录入，以上为已有信息。</div>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            detailContent.innerHTML = html;
+        }
+
+        // ================================================================
+        //  搜 索
+        // ================================================================
+
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value;
+            if (selectedId !== null) {
+                const stillVisible = getFilteredCases().some(c => c.id === selectedId);
+                if (!stillVisible) { selectedId = null; showPlaceholder(); } 
+                else { const c = cases.find(c => c.id === selectedId); if (c) renderDetail(c); }
+            }
+            renderList();
+        });
+
+        // ================================================================
+        //  初 始 化
+        // ================================================================
+
+        function init() {
+            renderFilterBar();
+            renderList();
+            const first = getFilteredCases()[0];
+            if (first) { selectedId = first.id; renderList(); renderDetail(first); } 
+            else { showPlaceholder(); }
+        }
+        init();
+    </script>
+</body>
+</html>
